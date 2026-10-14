@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body class="d-flex align-items-center justify-content-center" style="min-height:100vh; background: linear-gradient(135deg,#003580,#0057b8);">
+
+<div class="card shadow-lg p-4" style="width:420px; border-radius:16px;">
+  <div class="text-center mb-3">
+    <h4 class="fw-bold" style="color:#003580;"><i class="bi bi-person-plus"></i> Crear cuenta</h4>
+  </div>
+
+  <div th:if="${error}" class="alert alert-danger py-2 text-center small" th:text="${error}"></div>
+
+  <form th:action="@{/register}" th:object="${user}" method="post">
+    <div class="mb-3">
+      <label class="form-label fw-semibold small">Usuario</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-person"></i></span>
+        <input type="text" th:field="*{username}" class="form-control" placeholder="Nombre de usuario" required>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold small">Nombre completo</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+        <input type="text" th:field="*{fullName}" class="form-control" placeholder="Tu nombre completo" required>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold small">Contraseña <span class="text-muted">(mín. 6 caracteres)</span></label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+        <input type="password" th:field="*{password}" class="form-control" placeholder="Contraseña" required>
+      </div>
+    </div>
+    <button class="btn btn-ba w-100 fw-bold">
+      <i class="bi bi-person-check"></i> Registrarse
+    </button>
+  </form>
+  <hr class="my-3">
+  <div class="text-center small">
+    ¿Ya tienes cuenta? <a th:href="@{/login}" class="fw-semibold">Iniciar sesión</a>
+  </div>
+</div>
+</body>
+</html>

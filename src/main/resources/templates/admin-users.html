@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+<nav class="navbar navbar-dark" style="background:#003580;">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold" th:href="@{/dashboard}">✈ Backup Airlines</a>
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-outline-light" th:href="@{/admin/files}"><i class="bi bi-folder2-open"></i> Archivos</a>
+      <a class="btn btn-sm btn-outline-light" th:href="@{/admin/logs}"><i class="bi bi-journal-text"></i> Actividad</a>
+      <a class="btn btn-sm btn-outline-light" th:href="@{/dashboard}"><i class="bi bi-house"></i> Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+  <!-- Crear usuario -->
+  <div class="card mb-4">
+    <div class="card-header fw-semibold" style="background:#003580; color:white;">
+      <i class="bi bi-person-plus"></i> Crear usuario
+    </div>
+    <div class="card-body">
+      <form th:action="@{/admin/user/create}" method="post" class="row g-2">
+        <div class="col-md-2">
+          <input type="text" class="form-control form-control-sm" name="username" placeholder="Usuario" required>
+        </div>
+        <div class="col-md-3">
+          <input type="text" class="form-control form-control-sm" name="fullName" placeholder="Nombre completo" required>
+        </div>
+        <div class="col-md-2">
+          <input type="password" class="form-control form-control-sm" name="password" placeholder="Contraseña" required>
+        </div>
+        <div class="col-md-2">
+          <select class="form-select form-select-sm" name="role">
+            <option value="ROLE_USER">Usuario</option>
+            <option value="ROLE_ADMIN">Admin</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-ba btn-sm w-100"><i class="bi bi-plus-lg"></i> Crear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lista de usuarios -->
+  <div class="card">
+    <div class="card-header fw-semibold" style="background:#003580; color:white;">
+      <i class="bi bi-people"></i> Usuarios registrados
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>ID</th><th>Usuario</th><th>Nombre</th><th>Roles</th><th>Estado</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          <tr th:each="u : ${users}">
+            <td th:text="${u.id}"></td>
+            <td th:text="${u.username}"></td>
+            <td th:text="${u.fullName}"></td>
+            <td>
+              <span th:each="r : ${u.roles}" class="badge bg-primary badge-role me-1" th:text="${r.name}"></span>
+            </td>
+            <td>
+              <span th:if="${u.enabled}" class="badge bg-success">Activo</span>
+              <span th:unless="${u.enabled}" class="badge bg-secondary">Inactivo</span>
+            </td>
+            <td>
+              <form th:action="@{/admin/user/{id}/toggle(id=${u.id})}" method="post" style="display:inline">
+                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-toggle-on"></i></button>
+              </form>
+              <form th:action="@{/admin/user/{id}/delete(id=${u.id})}" method="post" style="display:inline"
+                    onsubmit="return confirm('¿Eliminar usuario?')">
+                <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

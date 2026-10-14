@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+<nav class="navbar navbar-dark" style="background:#003580;">
+  <div class="container">
+    <a class="navbar-brand fw-bold" th:href="@{/dashboard}">✈ Backup Airlines</a>
+    <a class="btn btn-sm btn-outline-light" th:href="@{/dashboard}"><i class="bi bi-arrow-left"></i> Volver</a>
+  </div>
+</nav>
+
+<div class="container mt-4" style="max-width:900px;">
+  <div class="card">
+    <div class="card-header fw-semibold" style="background:#003580; color:white;">
+      <i class="bi bi-clock-history"></i> Versiones:
+      <span th:text="${file.filename}"></span>
+    </div>
+    <div class="card-body p-0">
+      <div th:if="${message}" class="alert alert-success m-3" th:text="${message}"></div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr><th>#</th><th>Nombre</th><th>Fecha</th><th>Tamaño</th><th>Acciones</th></tr>
+          </thead>
+          <tbody>
+            <tr th:each="v, i : ${versions}">
+              <td th:text="${i.count}"></td>
+              <td th:text="${v.filename}"></td>
+              <td class="small text-muted" th:text="${v.createdAtFormatted}"></td>
+              <td class="small text-muted"
+                  th:text="${#numbers.formatDecimal(v.size/1024.0, 1, 'POINT', 1, 'COMMA')} + ' KB'"></td>
+              <td>
+                <form th:action="@{/file/{fid}/version/{vid}/restore(fid=${file.id}, vid=${v.id})}"
+                      method="post" style="display:inline">
+                  <button type="submit" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-arrow-counterclockwise"></i> Restaurar
+                  </button>
+                </form>
+                <a th:href="@{/file/{id}/download(id=${file.id})}" class="btn btn-sm btn-outline-success">
+                  <i class="bi bi-download"></i> Descargar actual
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

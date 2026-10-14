@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+<nav class="navbar navbar-dark" style="background:#003580;">
+  <div class="container">
+    <a class="navbar-brand fw-bold" th:href="@{/dashboard}">✈ Backup Airlines</a>
+    <a class="btn btn-sm btn-outline-light" th:href="@{/dashboard}"><i class="bi bi-arrow-left"></i> Volver</a>
+  </div>
+</nav>
+
+<div class="container mt-4" style="max-width:900px;">
+  <div class="card">
+    <div class="card-header fw-semibold" style="background:#003580; color:white;">
+      <i class="bi bi-trash"></i> Papelera
+    </div>
+    <div class="card-body p-0">
+      <div th:if="${message}" class="alert alert-success m-3" th:text="${message}"></div>
+      <div th:if="${error}" class="alert alert-danger m-3" th:text="${error}"></div>
+      <div th:if="${#lists.isEmpty(trashed)}" class="text-center text-muted p-4">
+        <i class="bi bi-trash" style="font-size:2rem;"></i>
+        <p>La papelera está vacía.</p>
+      </div>
+      <div class="table-responsive" th:unless="${#lists.isEmpty(trashed)}">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Nombre</th>
+              <th>Eliminado</th>
+              <th>Eliminado por</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="f : ${trashed}">
+              <td th:text="${f.filename}"></td>
+              <td class="small text-muted" th:text="${f.trashedAtFormatted}"></td>
+              <td class="small text-muted">
+                <span th:if="${f.deletedBy != null}" th:text="${f.deletedBy.username}"></span>
+                <span th:unless="${f.deletedBy != null}">—</span>
+              </td>
+              <td>
+                <form th:action="@{'/file/' + ${f.id} + '/restore'}" method="post" style="display:inline">
+                  <button type="submit" class="btn btn-sm btn-outline-success">
+                    <i class="bi bi-arrow-counterclockwise"></i> Restaurar
+                  </button>
+                </form>
+                <form th:action="@{'/file/' + ${f.id} + '/delete'}" method="post" style="display:inline"
+                      onsubmit="return confirm('¿Eliminar permanentemente?')">
+                  <button type="submit" class="btn btn-sm btn-danger">
+                    <i class="bi bi-x-circle"></i> Eliminar
+                  </button>
+                </form>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

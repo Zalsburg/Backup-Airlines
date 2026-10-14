@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body class="d-flex align-items-center justify-content-center" style="min-height:100vh; background: linear-gradient(135deg,#003580,#0057b8);">
+
+<div class="card shadow-lg p-4" style="width:380px; border-radius:16px;">
+  <div class="text-center mb-3">
+    <img th:src="@{/images/logo.png}" alt="Logo" style="height:60px;" onerror="this.style.display='none'">
+    <h4 class="mt-2 fw-bold" style="color:#003580;">Backup Airlines</h4>
+    <small class="text-muted">Sistema de gestión de archivos</small>
+  </div>
+
+  <div th:if="${param.error}" class="alert alert-danger py-2 text-center small">
+    <i class="bi bi-exclamation-circle"></i> Usuario o contraseña incorrectos.
+  </div>
+  <div th:if="${param.logout}" class="alert alert-success py-2 text-center small">
+    <i class="bi bi-check-circle"></i> Sesión cerrada correctamente.
+  </div>
+  <div th:if="${param.expired}" class="alert alert-warning py-2 text-center small">
+    <i class="bi bi-clock"></i> Tu sesión expiró. Inicia sesión nuevamente.
+  </div>
+  <div th:if="${param.registered}" class="alert alert-success py-2 text-center small">
+    <i class="bi bi-person-check"></i> Registro exitoso. Ya puedes iniciar sesión.
+  </div>
+
+  <form th:action="@{/login}" method="post">
+    <div class="mb-3">
+      <label class="form-label fw-semibold small">Usuario</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-person"></i></span>
+        <input type="text" class="form-control" name="username" placeholder="Tu usuario" required autofocus>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold small">Contraseña</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+        <input type="password" class="form-control" name="password" placeholder="Tu contraseña" required>
+      </div>
+    </div>
+    <button class="btn btn-ba w-100 fw-bold" type="submit">
+      <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+    </button>
+  </form>
+  <hr class="my-3">
+  <div class="text-center small">
+    ¿No tienes cuenta? <a th:href="@{/register}" class="fw-semibold">Crear cuenta</a>
+  </div>
+</div>
+</body>
+</html>

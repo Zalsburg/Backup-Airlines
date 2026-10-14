@@ -1,0 +1,10 @@
+/target/
+/uploads/
+*.iml
+/.idea/
+/data/*.db
+*.mv.db
+*.trace.db
+.venv/
+__pycache__/
+.ipynb_checkpoints/

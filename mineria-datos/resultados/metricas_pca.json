@@ -1,0 +1,39 @@
+{
+  "resultado": {
+    "modelo": "PCA (error de reconstrucción)",
+    "precision": 0.63,
+    "recall": 0.607,
+    "f1": 0.618,
+    "sesiones_marcadas": 27,
+    "TP": 17,
+    "FP": 10,
+    "FN": 11,
+    "TN": 913,
+    "average_precision": 0.611,
+    "componentes": 10,
+    "varianza_explicada": 0.926
+  },
+  "por_escenario": [
+    {
+      "escenario": "borrado_masivo",
+      "sesiones": 4,
+      "detectadas": 4
+    },
+    {
+      "escenario": "comparticion_masiva",
+      "sesiones": 8,
+      "detectadas": 7
+    },
+    {
+      "escenario": "descarga_masiva",
+      "sesiones": 7,
+      "detectadas": 6
+    },
+    {
+      "escenario": "fuera_de_horario",
+      "sesiones": 9,
+      "detectadas": 0
+    }
+  ],
+  "umbral_error": 5.9456
+}

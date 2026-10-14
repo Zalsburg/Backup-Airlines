@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+<nav class="navbar navbar-dark" style="background:#003580;">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold" th:href="@{/dashboard}">✈ Backup Airlines</a>
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-outline-light" th:href="@{/admin/users}"><i class="bi bi-people"></i> Usuarios</a>
+      <a class="btn btn-sm btn-outline-light" th:href="@{/admin/logs}"><i class="bi bi-journal-text"></i> Actividad</a>
+      <a class="btn btn-sm btn-outline-light" th:href="@{/dashboard}"><i class="bi bi-house"></i> Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+  <div class="card">
+    <div class="card-header fw-semibold" style="background:#003580; color:white;">
+      <i class="bi bi-folder2-open"></i> Todos los archivos
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>ID</th><th>Nombre</th><th>Propietario</th><th>Tamaño</th><th>Papelera</th><th>Favorito</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          <tr th:each="f : ${files}">
+            <td th:text="${f.id}"></td>
+            <td th:text="${f.filename}"></td>
+            <td th:text="${f.owner.username}"></td>
+            <td class="small text-muted" th:text="${#numbers.formatDecimal(f.size/1024.0,1,'POINT',1,'COMMA')} + ' KB'"></td>
+            <td>
+              <span th:if="${f.trashed}" class="badge bg-danger">Sí</span>
+              <span th:unless="${f.trashed}" class="badge bg-success">No</span>
+            </td>
+            <td>
+              <i class="bi bi-star-fill text-warning" th:if="${f.favorite}"></i>
+              <i class="bi bi-star text-muted" th:unless="${f.favorite}"></i>
+            </td>
+            <td>
+              <form th:action="@{/admin/file/{id}/delete(id=${f.id})}" method="post" style="display:inline"
+                    onsubmit="return confirm('¿Eliminar permanentemente?')">
+                <button class="btn btn-sm btn-danger"><i class="bi bi-trash-fill"></i> Eliminar</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

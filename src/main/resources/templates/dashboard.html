@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold" th:href="@{/dashboard}">
+      <img th:src="@{/images/logo.png}" height="36" alt="Logo" onerror="this.style.display='none'">
+      ✈ Backup Airlines
+    </a>
+    <div class="collapse navbar-collapse justify-content-end">
+      <ul class="navbar-nav align-items-center gap-2">
+        <li class="nav-item"><span class="nav-link text-white-50 small"><i class="bi bi-person-circle"></i> [[${username}]]</span></li>
+        <li sec:authorize="hasRole('ADMIN')" class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <i class="bi bi-shield-lock"></i> Admin
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" th:href="@{/admin/users}"><i class="bi bi-people"></i> Usuarios</a></li>
+            <li><a class="dropdown-item" th:href="@{/admin/files}"><i class="bi bi-folder2-open"></i> Todos los archivos</a></li>
+            <li><a class="dropdown-item" th:href="@{/admin/logs}"><i class="bi bi-journal-text"></i> Actividad</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/trash}"><i class="bi bi-trash"></i> Papelera</a></li>
+        <li class="nav-item"><a class="btn btn-sm btn-outline-light ms-2" th:href="@{/logout}"><i class="bi bi-box-arrow-right"></i> Salir</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid px-4 mt-4">
+
+  <!-- Alertas -->
+  <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle"></i> <span th:text="${message}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle"></i> <span th:text="${error}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <div class="row g-4">
+    <!-- Panel izquierdo -->
+    <div class="col-lg-3">
+
+      <!-- Subir archivos -->
+      <div class="card mb-3">
+        <div class="card-header fw-semibold" style="background:#003580; color:white;">
+          <i class="bi bi-cloud-upload"></i> Subir archivos
+        </div>
+        <div class="card-body">
+          <form th:action="@{/upload}" method="post" enctype="multipart/form-data" id="uploadForm">
+            <div class="mb-2">
+              <input class="form-control form-control-sm" type="file" name="files" multiple required id="fileInput">
+            </div>
+            <div class="mb-2" th:if="${!#lists.isEmpty(folders)}">
+              <select class="form-select form-select-sm" name="folderId">
+                <option value="">Sin carpeta</option>
+                <option th:each="f : ${folders}" th:value="${f.id}" th:text="${f.name}"></option>
+              </select>
+            </div>
+            <div id="client-error" class="alert alert-danger py-1 small d-none"></div>
+            <button class="btn btn-ba btn-sm w-100"><i class="bi bi-upload"></i> Subir</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Crear carpeta -->
+      <div class="card mb-3">
+        <div class="card-header fw-semibold" style="background:#003580; color:white;">
+          <i class="bi bi-folder-plus"></i> Nueva carpeta
+        </div>
+        <div class="card-body">
+          <form th:action="@{/folder/create}" method="post">
+            <div class="input-group input-group-sm">
+              <input type="text" class="form-control" name="name" placeholder="Nombre de carpeta" required>
+              <button class="btn btn-ba" type="submit"><i class="bi bi-plus-lg"></i></button>
+            </div>
+          </form>
+          <!-- Carpetas existentes -->
+          <div th:if="${!#lists.isEmpty(folders)}" class="mt-2">
+            <div class="small fw-semibold text-muted mb-1">Mis carpetas</div>
+            <ul class="list-group list-group-flush">
+              <li th:each="fd : ${folders}" class="list-group-item py-1 px-0 small">
+                <i class="bi bi-folder text-warning"></i> <span th:text="${fd.name}"></span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Archivos compartidos conmigo -->
+      <div class="card" th:if="${!#lists.isEmpty(sharedWithMe)}">
+        <div class="card-header fw-semibold" style="background:#5b8dee; color:white;">
+          <i class="bi bi-share"></i> Compartidos conmigo
+        </div>
+        <ul class="list-group list-group-flush">
+          <li th:each="f : ${sharedWithMe}" class="list-group-item py-1 small">
+            <i class="bi bi-file-earmark text-primary"></i>
+            <span th:text="${f.filename}"></span>
+            <a th:href="@{/file/{id}/download(id=${f.id})}" class="btn btn-sm btn-outline-success py-0 ms-1">
+              <i class="bi bi-download"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Panel principal -->
+    <div class="col-lg-9">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background:#003580; color:white;">
+          <span><i class="bi bi-folder2-open"></i> Mis archivos</span>
+          <span class="badge bg-light text-dark" th:text="${#lists.size(files)} + ' archivos'"></span>
+        </div>
+        <div class="card-body p-0">
+          <div th:if="${#lists.isEmpty(files)}" class="text-center text-muted p-5">
+            <i class="bi bi-inbox" style="font-size:3rem;"></i>
+            <p class="mt-2">No hay archivos. ¡Sube el primero!</p>
+          </div>
+          <div class="table-responsive" th:if="${!#lists.isEmpty(files)}">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Nombre</th>
+                  <th>Tamaño</th>
+                  <th>Tipo</th>
+                  <th>Carpeta</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="f : ${files}">
+                  <td>
+                    <i class="bi bi-star-fill text-warning me-1" th:if="${f.favorite}"></i>
+                    <i class="bi bi-star text-muted me-1" th:unless="${f.favorite}"></i>
+                    <span th:text="${f.filename}"></span>
+                  </td>
+                  <td class="text-muted small" th:text="${#numbers.formatDecimal(f.size/1024.0,1,'POINT',1,'COMMA')} + ' KB'"></td>
+                  <td class="text-muted small" th:text="${f.contentType}"></td>
+                  <td class="text-muted small">
+                    <span th:if="${f.folder != null}" th:text="${f.folder.name}"></span>
+                    <span th:unless="${f.folder != null}" class="text-muted">—</span>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <a th:href="@{/file/{id}/preview(id=${f.id})}" class="btn btn-outline-primary" target="_blank" title="Ver"><i class="bi bi-eye"></i></a>
+                      <a th:href="@{/file/{id}/download(id=${f.id})}" class="btn btn-outline-success" title="Descargar"><i class="bi bi-download"></i></a>
+                      <a th:href="@{/file/{id}/versions(id=${f.id})}" class="btn btn-outline-info" title="Versiones"><i class="bi bi-clock-history"></i></a>
+                      <!-- Favorito -->
+                      <form th:action="@{/file/{id}/favorite(id=${f.id})}" method="post" style="display:inline">
+                        <button type="submit" class="btn btn-outline-warning" title="Favorito"><i class="bi bi-star"></i></button>
+                      </form>
+                      <!-- Compartir -->
+                      <button class="btn btn-outline-secondary" title="Compartir"
+                              data-bs-toggle="modal" th:data-bs-target="'#shareModal' + ${f.id}">
+                        <i class="bi bi-share"></i>
+                      </button>
+                      <!-- Papelera -->
+                      <form th:action="@{/file/{id}/trash(id=${f.id})}" method="post" style="display:inline">
+                        <button type="submit" class="btn btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modales de compartir -->
+<div th:each="f : ${files}">
+  <div class="modal fade" th:id="'shareModal' + ${f.id}" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="background:#003580; color:white;">
+          <h6 class="modal-title"><i class="bi bi-share"></i> Compartir: <span th:text="${f.filename}"></span></h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form th:action="@{/file/{id}/share(id=${f.id})}" method="post">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Compartir con usuario</label>
+              <input type="text" class="form-control form-control-sm" name="username" placeholder="Nombre de usuario">
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" name="makePublic" value="true" id="pub_[[${f.id}]]">
+              <label class="form-check-label small" th:for="'pub_' + ${f.id}">
+                Generar enlace público (expira en 7 días)
+              </label>
+            </div>
+            <button type="submit" class="btn btn-ba btn-sm w-100"><i class="bi bi-send"></i> Compartir</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+  const form = document.getElementById('uploadForm');
+  const fileInput = document.getElementById('fileInput');
+  const clientError = document.getElementById('client-error');
+  form.addEventListener('submit', function(e) {
+    const maxSize = 50 * 1024 * 1024;
+    for (let i = 0; i < fileInput.files.length; i++) {
+      if (fileInput.files[i].size > maxSize) {
+        e.preventDefault();
+        clientError.textContent = '¡Uno o más archivos exceden los 50 MB!';
+        clientError.classList.remove('d-none');
+        return;
+      }
+    }
+  });
+</script>
+</body>
+</html>
